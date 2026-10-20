@@ -1,0 +1,83 @@
+% The Emerald Programming Language Specification
+
+const CatSimulator -> object CatSimulator
+  % Internal data fields tracking object variables
+  var affection : Integer := 40
+  var hunger    : Integer := 50
+  var running   : Boolean := true
+
+  % Method to safely bound data values between 0 and 100
+  operation CheckBounds
+    if affection > 100 then affection := 100 end if
+    if affection < 0   then affection := 0   end if
+    if hunger > 100    then hunger := 100    end if
+    if hunger < 0      then hunger := 0      end if
+  end CheckBounds
+
+  % Core operational routine loop
+  export operation RunSimulation
+    var choice : String
+    
+    stdout.PutString["==================================================\n"]
+    stdout.PutString["         PET EMULATOR V1.0 // EMERALD PLATFORM    \n"]
+    stdout.PutString["==================================================\n"]
+
+    while running loop
+      stdout.PutString["\x1b[H"] % Snap monitor grid back to top-left (0,0)
+      
+      % Draw object layout graphics
+      if affection >= 75 then
+        stdout.PutString["   /\\_/\\    * Purr... *\n  ( =^.^= )   * ✨ *\n   >  o  <\n"]
+      else
+        stdout.PutString["   /\\_/\\ \n  ( o.o )\n   > ^ < \n"]
+      end if
+      stdout.PutString["  /     \\\n (_______)x\n\n"]
+
+      stdout.PutString["💖 Affection Level: " || affection.asString || "%\n"]
+      stdout.PutString["🍖 Hunger Saturation: " || hunger.asString || "%\n\n"]
+
+      stdout.PutString["  1: Pet the cat\n  2: Give Treat\n  3: Feed cat\n\n"]
+      stdout.PutString["Select Action (1-3) or Q to Halt > "]
+      
+      choice := stdin.ReadString[]
+      choice := choice.Upper[]
+
+      if choice = "1" then
+        % 20% probability chance the cat swipes back on this execution block
+        if (Integer.Random[5] = 0) then
+          affection := affection - 10
+          stdout.PutString["\n⚡ Swipe! The cat swatted your hand away.     \n"]
+        else
+          affection := affection + 15
+          stdout.PutString["\nPurrrrr... The cat leans into your hand.     \n"]
+        end if
+        self.CheckBounds[]
+        % Sleep state thread delay
+        delay[1000000] 
+      elseif choice = "2" then
+        if hunger >= 90 then
+          stdout.PutString["\nThe cat turns its nose up. Uninterested.     \n"]
+        else
+          affection := affection + 10
+          hunger := hunger + 15
+          stdout.PutString["\nCrunch crunch. It neatly eats the treat.     \n"]
+        end if
+        self.CheckBounds[]
+        delay[1000000]
+      elseif choice = "3" then
+        if hunger >= 100 then
+          stdout.PutString["\nThe bowl is full. The cat ignores it.        \n"]
+        else
+          hunger := hunger + 35
+          affection := affection + 5
+          stdout.PutString["\nNom nom nom. The food bowl is cleared.       \n"]
+        end if
+        self.CheckBounds[]
+        delay[1000000]
+      elseif choice = "Q" then
+        running := false
+      end if
+    end loop
+    stdout.PutString["Emerald Core Object powered down safely.\n"]
+  end RunSimulation
+end CatSimulator
